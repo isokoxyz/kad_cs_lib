@@ -24,13 +24,18 @@ public class KadLib
         return result;
     }
 
+    /// <summary>
+    /// This function signs a command or group of commands using the quicksign API
+    /// </summary>
+    /// <param name="cmds">Array or stringified commands in json format</param>
+    /// <returns>Signed command in JSON string format</returns>
     public static async Task<string> quicksign(string[] cmds) {
         var cmdToQuicksign = formatCmdForPactServerQuicksign(cmds);
 
         string result = await executeHttpRequest("http://127.0.0.1:9467/v1/quicksign", JsonConvert.DeserializeObject<JObject>(cmdToQuicksign));
         Console.WriteLine(result);
 
-        return "";
+        return result;
     }
 
     /// <summary>
@@ -54,6 +59,13 @@ public class KadLib
         return result;
     }
 
+    /// <summary>
+    /// This function executes HTTP requests to any URL
+    /// </summary>
+    /// <param name="url">String representing the URL of the API</param>
+    /// <param name="data">Object containing body of HTTP request</param>
+    /// <returns>Stringified response of API endpoint</returns>
+    /// <exception cref="Exception"></exception>
     public static async Task<string> executeHttpRequest(string url, object data) {
         HttpClient httpClient = new HttpClient();
         StringContent queryString = new StringContent(
@@ -70,6 +82,22 @@ public class KadLib
         return responseMessage;
     }
 
+    /// <summary>
+    /// This function builds an Exec command as defined by Kadena standards
+    /// </summary>
+    /// <param name="pactCode">
+    ///     String representing pact contract and function to be called on the blockchain
+    /// </param>
+    /// <param name="chainId">String representing ID of chain the destination contract is on</param>
+    /// <param name="sender">String representing wallet address of acconut sending the transaction</param>
+    /// <param name="envData">Object containing data needed by the called function on the blockchain</param>
+    /// <param name="signers">Array of objects containing data for each signer on the transaction</param>
+    /// <param name="gasPrice">Double representing price of gas to execute transaction</param>
+    /// <param name="gasLimit">Integer representing limit of gas spend for the transaction</param>
+    /// <param name="ttl">Integer detailing time before transaction times out</param>
+    /// <param name="networkId">String representing network used, either mainnet01 or testnet04</param>
+    /// <param name="nonce">String representing nonce</param>
+    /// <returns>JSON string containing all exec command details</returns>
     public static string buildExecCmd(
         string pactCode,
         string chainId,
@@ -112,6 +140,24 @@ public class KadLib
         return serializedCommand;
     }
 
+    /// <summary>
+    /// This function builds a Cont command as defined by Kadena standards
+    /// </summary>
+    /// <param name="pactTxHash">String representing pact ID of transaction to continue</param>
+    /// <param name="sender">String representing wallet address of acconut sending the transaction</param>
+    /// <param name="signers">Array of objects containing data for each signer on the transaction</param>
+    /// <param name="chainId">String representing ID of chain the destination contract is on</param>
+    /// <param name="networkId">String representing network used, either mainnet01 or testnet04</param>
+    /// <param name="nonce">String representing nonce</param>
+    /// <param name="proof">String representing proof for cross chain transactions</param>
+    /// <param name="ttl">Integer detailing time before transaction times out</param>
+    /// <param name="step">Integer representing step of the defpact</param>
+    /// <param name="rollback">Boolean indcating whether the transaction can be rolled back</param>
+    /// <param name="envData">Object containing data needed by the called function on the blockchain</param>
+    /// <param name="clist">Array of capabilities needed by the function called</param>
+    /// <param name="gasPrice">Double representing price of gas to execute transaction</param>
+    /// <param name="gasLimit">Integer representing limit of gas spend for the transaction</param>
+    /// <returns>JSON string containing all cont command details</returns>
     public static string buildContCmd(
         string pactTxHash,
         string sender,
@@ -164,6 +210,12 @@ public class KadLib
         return JsonConvert.SerializeObject(finalCmd);
     }
 
+    /// <summary>
+    /// This function gets the url for the kadena API endpoints
+    /// </summary>
+    /// <param name="netId">String representing the network used either mainnet01 or testnet04</param>
+    /// <param name="chainId">String representing chain to call the endpoint on</param>
+    /// <returns>String containing URL of the API endpoint</returns>
     public static string getNetworkUrlWithChainId(string netId, string chainId)
     {
         string networkUrl = "https://api.chainweb.com/chainweb/0.0/" + netId + "/chain/" + chainId + "/pact";
@@ -171,11 +223,25 @@ public class KadLib
         return networkUrl;
     }
 
+    /// <summary>
+    /// This function gets the public key of an account, given an account key
+    /// </summary>
+    /// <param name="accountKey">String representing wallet address</param>
+    /// <returns>String containing the public key derived from the wallet address</returns>
     public static string getPublicKeyFromAccount(string accountKey)
     {
         return accountKey.Split(":")[1];
     }
 
+    /// <summary>
+    /// This function builds the command metadata for the command to be executed successfully
+    /// </summary>
+    /// <param name="sender">String representing wallet address of acconut sending the transaction</param>
+    /// <param name="chainId">String representing chain to call the endpoint on</param>
+    /// <param name="gasPrice">Double representing price of gas to execute transaction</param>
+    /// <param name="gasLimit">Integer representing limit of gas spend for the transaction</param>
+    /// <param name="ttl">Integer detailing time before transaction times out</param>
+    /// <returns>Object containing the command metadata</returns>
     public static object buildMetadata(
         string sender,
         string chainId,
@@ -199,6 +265,12 @@ public class KadLib
         return meta;
     }
 
+    /// <summary>
+    /// This function builds signers for a command given the capabilities and wallet addresses
+    /// </summary>
+    /// <param name="clist">Array of capabilities needed by the function called</param>
+    /// <param name="signers">Array of objects containing data for each signer on the transaction</param>
+    /// <returns>Object containing list of sigs</returns>
     public static object buildSigners(object[] clist, string[] signers)
     {
         ArrayList signerList = new ArrayList();
@@ -215,6 +287,12 @@ public class KadLib
         return signerList;
     }
 
+    /// <summary>
+    /// This function builds a capability object as expected by the Kadena blockchain
+    /// </summary>
+    /// <param name="name">String representing the name of the capability</param>
+    /// <param name="args">Array of objects representing args as expected by the function called</param>
+    /// <returns>Object containing data of the build capabilities/returns>
     public static object buildCap(string name, object[] args)
     {
         var cap = new
@@ -226,6 +304,13 @@ public class KadLib
         return cap;
     }
 
+    /// <summary>
+    /// This function performs read queries to fetch data from the blockchain
+    /// </summary>
+    /// <param name="cmd">JSON string of command to be sent over the blockchain</param>
+    /// <param name="sigs">Array of strings representing sigs needed for transaction</param>
+    /// <param name="networkUrl"></param>
+    /// <returns>JSON string containing response data from the blockchain</returns>
     public static async Task<string> pactFetchLocal(string cmd, string[] sigs, string networkUrl)
     {
         string hash = hashCommand(cmd);
