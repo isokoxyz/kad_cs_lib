@@ -13,6 +13,12 @@ using System.Runtime.InteropServices.JavaScript;
 
 class HashingUtils
 {
+    /// <summary>
+    /// This function hashes a given message using the Blake2B algorithm,
+    /// then encodes the result using base 64 encoding.
+    /// </summary>
+    /// <param name="input">String containing message to be hashed and encoded</param>
+    /// <returns>String containing hashed and encoded message</returns>
     public static string hashCommand(string input)
     {
         //Set configuration for blake2b hashing algorithm
@@ -39,6 +45,11 @@ class HashingUtils
         return result;
     }
 
+    /// <summary>
+    /// This function encodes a given message using base 64 encoding
+    /// </summary>
+    /// <param name="input">String containing message to be encoded</param>
+    /// <returns>String containing encoded message</returns>
     private static string b64BaseUrlEncode(string input)
     {
         string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=";
@@ -73,11 +84,22 @@ class HashingUtils
 
 class CommandUtilities
 {
+    /// <summary>
+    /// This function extracts public key from a given wallet address
+    /// </summary>
+    /// <param name="accountKey">String containing wallet address</param>
+    /// <returns>String containing wallet public address</returns>
     public static string getPublicKeyFromAccount(string accountKey)
     {
         return accountKey.Split(":")[1];
     }
 
+    /// <summary>
+    /// This function shapes a command's data to match the format expected
+    /// by the Pact server sign endpoint.
+    /// </summary>
+    /// <param name="cmd">JSON string of command to be formatted</param>
+    /// <returns>JSON string of formatted command to be signed</returns>
     public static string formatCmdForPactServerSign(string cmd) {
         var command = JsonConvert.DeserializeObject<JObject>(cmd);
 
@@ -97,6 +119,12 @@ class CommandUtilities
         return JsonConvert.SerializeObject(formattedCmd);
     }
 
+    /// <summary>
+    /// This function shapes a command's data to match the format expected
+    /// by the Pact server quicksign endpoint.
+    /// </summary>
+    /// <param name="cmds">Array of JSON strings of commands to be formatted</param>
+    /// <returns>JSON string of formatted command to be quicksigned</returns>
     public static string formatCmdForPactServerQuicksign(string[] cmds) {
         ArrayList commandSigDatas = new ArrayList();
         foreach(string cmd in cmds) {
@@ -119,6 +147,13 @@ class CommandUtilities
         return JsonConvert.SerializeObject(cmdToQuicksign);
     }
 
+    /// <summary>
+    /// This function shapes a command's data to match the format expected
+    /// by the Pact server send endpoint to execute the command on the 
+    /// Kadena blockchain.
+    /// </summary>
+    /// <param name="cmds">Array of JSON strings of commands to be formatted</param>
+    /// <returns>JSON string of formatted command to be sent</returns>
     public static string formatCmdForPactServerSend(string[] cmds) {
         ArrayList cmdList = new ArrayList();
         foreach (var cmd in cmds) {
@@ -132,6 +167,12 @@ class CommandUtilities
         return JsonConvert.SerializeObject(command);
     }
 
+    /// <summary>
+    /// This function extracts Sigs from a given command as needed to successfully
+    /// execute a command on the Kadena blockchain
+    /// </summary>
+    /// <param name="cmd">JObject containing the command from which the sigs will be built</param>
+    /// <returns>Object containing sigs formatted as expected by the Kadena blockchain</returns>
     public static object getSigsFromCmd(JObject cmd) {
         var signers = cmd["signers"];
         ArrayList sigs = new ArrayList();
