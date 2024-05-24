@@ -15,8 +15,12 @@ public class Examples
 
     public static void Main(string[] args)
     {
-        // string exec = execExample("8", "mainnet01", "fromCs", "CS WORKS");
-        string cont = contExample("contcs", "CONTCS WORKS", "mainnet01");
+        string key = "";
+        string value = "";
+        string exec = execExample("8", "mainnet01", key, value);
+
+        // string value2 = "";
+        // string cont = contExample("contcs", value2, "mainnet01");
     }
     public static string execExample(string chain, string network, string key, string value) {
         string assembledCommand = buildExecCmd(
